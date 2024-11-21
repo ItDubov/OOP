@@ -1,10 +1,28 @@
 class Product:
-    def __init__(self, name: str, description: str,
-                 price: float, quantity: int):
+    def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
-        self.price = price
+        self.__price = price  # Приватный атрибут для цены
         self.quantity = quantity
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, new_price):
+        if new_price <= 0:
+            print("Цена не должна быть нулевая или отрицательная")
+            return
+
+        if new_price < self.__price:  # Логика для понижения цены
+            confirmation = input("Вы уверены, что хотите понизить цену? (Да/Нет): ")
+            if confirmation.lower() != 'Да':  # Проверка на подтверждение
+                print("Понижение цены отменено")
+                return
+
+        # Устанавливаем новую цену
+        self.__price = new_price
 
 
 class Category:
@@ -12,75 +30,66 @@ class Category:
     category_count = 0
     product_count = 0
 
-    def __init__(self, name: str, description: str, products: list):
+    def __init__(self, name: str, description: str, products: list = None):
         self.name = name
         self.description = description
-        self.products = products
-
-        # Увеличиваем счетчик категорий при создании новой категории
+        self.__products = products if products else []
         Category.category_count += 1
+        Category.product_count += len(self.__products)
 
-        # Увеличиваем счетчик товаров,
-        # прибавляя количество товаров в данной категории
-        Category.product_count += len(products)
+    def add_product(self, new_product: Product):
+        for existing_product in self.__products:
+            if existing_product.name == new_product.name:
+                existing_product.quantity += new_product.quantity
+                if new_product.price > existing_product.price:
+                    existing_product.price = new_product.price
+                return
+
+        self.__products.append(new_product)
+        Category.product_count += 1
+
+    @property
+    def product_list(self):
+        return '\n'.join(
+            f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт."
+            for product in self.__products
+        )
+
+    def get_products(self):
+        return self.__products
 
 
 # Пример использования
 if __name__ == "__main__":
     # Создание объектов Product
-    product1 = Product("Samsung Galaxy S23 Ultra",
-                       "256GB, Серый цвет, 200MP камера",
-                       180000.0, 5)
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5)
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 8)
     product3 = Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
 
-    # Проверка свойств Product
-    print(product1.name)
-    print(product1.description)
-    print(product1.price)
-    print(product1.quantity)
+    # Демонстрация геттеров и сеттеров
+    print(product1.price)  # Вывод текущей цены
 
-    print(product2.name)
-    print(product2.description)
-    print(product2.price)
-    print(product2.quantity)
+    # Попытка установить отрицательную цену
+    product1.price = -5000  # Должно вывести сообщение об ошибке
 
-    print(product3.name)
-    print(product3.description)
-    print(product3.price)
-    print(product3.quantity)
+    # Попытка установить более высокую цену
+    product1.price = 190000  # Цена обновится
+
+    # Попытка снизить цену с подтверждением
+    product1.price = 170000  # Потребуется подтверждение через input
 
     # Создание объекта Category с продуктами
     category1 = Category(
         "Смартфоны",
-        "Смартфоны, как средство не только коммуникации, но и "
-        "получения дополнительных функций для удобства жизни",
+        "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
         [product1, product2, product3]
     )
 
-    # Проверка свойств Category
-    print(category1.name == "Смартфоны")
-    print(category1.description)
-    print(len(category1.products))  # Количество товаров в категории
-    print(Category.category_count)  # Общее количество категорий
-    print(Category.product_count)  # Общее количество товаров
+    print(category1.product_list)
 
-    # Создание еще одного объекта Product и Category
-    product4 = Product("55\" QLED 4K", "Фоновая подсветка", 123000.0, 7)
-    category2 = Category(
-        "Телевизоры",
-        "Современный телевизор, "
-        "который позволяет наслаждаться просмотром, "
-        "станет вашим другом и помощником",
-        [product4]
-    )
+    # Создание и добавление нового продукта с тем же именем
+    new_product = Product("Samsung Galaxy S23 Ultra", "Обновленное описание", 185000.0, 3)
+    category1.add_product(new_product)
 
-    # Проверка свойств второй категории
-    print(category2.name)
-    print(category2.description)
-    print(len(category2.products))  # Количество товаров в категории
-    print(category2.products)
-
-    # Проверка общих счетчиков категорий и товаров
-    print(Category.category_count)  # Общее количество категорий
-    print(Category.product_count)  # Общее количество товаров
+    print("\nПосле добавления нового продукта с тем же именем:")
+    print(category1.product_list)
