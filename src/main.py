@@ -1,12 +1,38 @@
-from src.product import Product
+from src.product import Product, Smartphone, LawnGrass
 from src.category import Category
 
 if __name__ == "__main__":
     # Создание списка продуктов
     products = [
-        Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет, 200MP камера", 180000.0, 5),
-        Product("Iphone 15", "512GB, Gray space", 210000.0, 8),
-        Product("Xiaomi Redmi Note 11", "1024GB, Синий", 31000.0, 14)
+        Smartphone(
+            name="Samsung Galaxy S23 Ultra",
+            description="256GB, Серый цвет, 200MP камера",
+            price=180000.0,
+            quantity=5,
+            efficiency="Snapdragon 8 Gen 2",
+            model="Galaxy S23 Ultra",
+            memory=256,
+            color="Серый"
+        ),
+        Smartphone(
+            name="Iphone 15",
+            description="512GB, Gray space",
+            price=210000.0,
+            quantity=8,
+            efficiency="A17 Bionic",
+            model="Pro Max",
+            memory=512,
+            color="Серый космос"
+        ),
+        LawnGrass(
+            name="Газонная трава 'Ландшафт'",
+            description="Устойчивая к вытаптыванию газонная трава",
+            price=1200.0,
+            quantity=20,
+            country="Нидерланды",
+            germination_period=14,
+            color="Зеленый"
+        )
     ]
 
     # Демонстрация геттеров и сеттеров
@@ -37,14 +63,25 @@ if __name__ == "__main__":
         "Смартфоны",
         "Смартфоны, как средство не только коммуникации, но и "
         "получения дополнительных функций для удобства жизни",
-        products
+        [p for p in products if isinstance(p, Smartphone)]
     )
 
     print("\nСписок продуктов в категории:")
     print(category.products)
 
     # Добавление нового продукта с тем же именем
-    category.add_product(Product("Samsung Galaxy S23 Ultra", "Обновленное описание", 185000.0, 3))
+    category.add_product(
+        Smartphone(
+            name="Samsung Galaxy S23 Ultra",
+            description="Обновленное описание",
+            price=185000.0,
+            quantity=3,
+            efficiency="Snapdragon 8 Gen 2",
+            model="Galaxy S23 Ultra",
+            memory=256,
+            color="Черный"
+        )
+    )
 
     print("\nПосле добавления нового продукта с тем же именем:")
     print(category.products)
@@ -69,10 +106,17 @@ if __name__ == "__main__":
     else:
         print("Не удалось создать продукт.")
 
-    # Сложение стоимости продуктов
-    print("\nСложение стоимости товаров:")
+    # Сложение стоимости продуктов одного типа
+    print("\nСложение стоимости товаров одного типа (смартфоны):")
     try:
         total_cost = products[0] + products[1]
         print(f"Общая стоимость товаров: {total_cost} руб.")
+    except TypeError as e:
+        print(f"Ошибка: {e}")
+
+    # Попытка сложить товары разных типов
+    print("\nПопытка сложить товары разных типов:")
+    try:
+        total_cost = products[0] + products[2]
     except TypeError as e:
         print(f"Ошибка: {e}")

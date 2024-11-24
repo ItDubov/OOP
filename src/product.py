@@ -2,7 +2,7 @@ class Product:
     def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
-        self.price = price  # Используем сеттер для валидации цены
+        self.__price = price  # Используем сеттер для валидации цены
         self.quantity = quantity
 
     @property
@@ -37,13 +37,56 @@ class Product:
             return None
 
     def __str__(self):
-        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт."
+        # Строковое представление должно точно соответствовать тесту
+        return f"{self.name}, Цена: {self.price} руб, Количество: {self.quantity} шт."
 
     def __add__(self, other):
         """
-        Складывает два объекта Product для расчета полной стоимости товаров на складе.
+        Складывает два объекта Product, если они принадлежат к одному классу.
         """
         if not isinstance(other, Product):
             raise TypeError("Сложение возможно только между объектами класса Product.")
+
+        if type(self) is not type(other):
+            raise TypeError("Нельзя складывать продукты разных категорий.")
+
         total_cost = (self.price * self.quantity) + (other.price * other.quantity)
         return total_cost
+
+    def __repr__(self):
+        return f"Product(name={self.name}, price={self.__price}, quantity={self.quantity})"
+
+
+class Smartphone(Product):
+    def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+    def __str__(self):
+        return (f"Смартфон: {self.name}, модель: {self.model}, цвет: {self.color}, "
+                f"память: {self.memory} GB, производительность: {self.efficiency}, "
+                f"цена: {self.price} руб., остаток: {self.quantity} шт.")
+
+    def __repr__(self):
+        return (f"Smartphone(name={self.name}, model={self.model}, color={self.color}, "
+                f"memory={self.memory}, price={self.price}, quantity={self.quantity})")
+
+
+class LawnGrass(Product):
+    def __init__(self, name, description, price, quantity, country, germination_period, color):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+    def __str__(self):
+        return (f"Трава газонная: {self.name}, цвет: {self.color}, страна-производитель: {self.country}, "
+                f"срок прорастания: {self.germination_period} дней, "
+                f"цена: {self.price} руб., остаток: {self.quantity} шт.")
+
+    def __repr__(self):
+        return (f"LawnGrass(name={self.name}, country={self.country}, color={self.color}, "
+                f"germination_period={self.germination_period}, price={self.price}, quantity={self.quantity})")
