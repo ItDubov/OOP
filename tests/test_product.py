@@ -1,5 +1,5 @@
 import pytest
-from src.product import Product
+from src.product import Product, Smartphone, LawnGrass
 
 
 @pytest.fixture
@@ -101,3 +101,35 @@ def test_product_add_operator():
     # Проверка на ошибку при сложении с объектом другого типа
     with pytest.raises(TypeError):
         product1 + "Not a product"  # Ожидаем исключение TypeError
+
+
+def test_product_add_different_types():
+    """Тест на сложение продуктов разных типов."""
+    smartphone = Smartphone(
+        name="Smartphone A",
+        description="256GB, Black",
+        price=150000.0,
+        quantity=5,
+        efficiency="Snapdragon 8 Gen 2",
+        model="Galaxy A",
+        memory=256,
+        color="Black"
+    )
+
+    lawn_grass = LawnGrass(
+        name="Газонная трава 'Ландшафт'",
+        description="Высокая устойчивость",
+        price=1200.0,
+        quantity=20,
+        country="Нидерланды",
+        germination_period=14,
+        color="Зеленый"
+    )
+
+    with pytest.raises(TypeError):
+        _ = smartphone + lawn_grass
+
+
+def test_string_representation(product):
+    """Тест строкового представления продукта."""
+    assert str(product) == "Samsung Galaxy S23 Ultra, Цена: 180000.0 руб, Количество: 5 шт."

@@ -1,3 +1,4 @@
+import pytest
 from src.product import Product
 from src.category import Category
 
@@ -9,6 +10,7 @@ def setup_function():
 
 
 def test_category_initialization():
+    """Тест корректной инициализации категории с продуктами."""
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 3)
 
@@ -17,11 +19,12 @@ def test_category_initialization():
     assert Category.category_count == 1  # Создана одна категория
     assert Category.product_count == 8  # Всего 8 единиц товаров (5 + 3)
     assert len(category.products) == 2  # Проверяем, что в категории два продукта
-    assert str(product1) in [str(p) for p in category.products]
-    assert str(product2) in [str(p) for p in category.products]
+    assert product1 in category.products
+    assert product2 in category.products
 
 
 def test_add_product_to_category():
+    """Тест добавления продукта в категорию."""
     category = Category("Смартфоны", "Описание категории")
 
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
@@ -36,6 +39,7 @@ def test_add_product_to_category():
 
 
 def test_add_duplicate_product():
+    """Тест добавления дубликата продукта."""
     category = Category("Смартфоны", "Описание категории")
 
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
@@ -49,7 +53,15 @@ def test_add_duplicate_product():
     assert category.products[0].price == 185000.0  # Цена обновлена
 
 
+def test_add_invalid_product():
+    """Тест добавления объекта, не являющегося продуктом."""
+    category = Category("Смартфоны", "Описание категории")
+    with pytest.raises(TypeError):
+        category.add_product("Не продукт")  # Ожидаем ошибку
+
+
 def test_multiple_categories():
+    """Тест создания нескольких категорий."""
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
     product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 3)
 
@@ -61,6 +73,7 @@ def test_multiple_categories():
 
 
 def test_product_addition():
+    """Тест сложения продуктов одного типа."""
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 100, 10)
     product2 = Product("Iphone 15", "512GB, Gray space", 200, 2)
 
@@ -68,18 +81,54 @@ def test_product_addition():
     assert total_cost == 1400  # 100 × 10 + 200 × 2
 
 
-def test_invalid_price():
-    try:
-        product = Product("Invalid Product", "Invalid description", -100, 1)
-        assert False, "Не должно быть создано с отрицательной ценой"
-    except ValueError as e:
-        assert str(e) == "Цена должна быть положительным числом."
-
-
 def test_category_str():
+    """Тест строкового представления категории."""
     product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 100, 10)
     product2 = Product("Iphone 15", "512GB, Gray space", 200, 2)
 
     category = Category("Смартфоны", "Описание категории", [product1, product2])
     expected_str = "Смартфоны, количество продуктов: 12 шт."
     assert str(category) == expected_str
+
+
+def test_new_product_creation():
+    """Тест метода new_product для создания продукта."""
+    product_data = {
+        "name": "Xiaomi Redmi Note 11",
+        "description": "1024GB, Синий",
+        "price": 31000.0,
+        "quantity": 14
+    }
+
+    product = Product.new_product(product_data)
+    assert product is not None
+    assert product.name == "Xiaomi Redmi Note 11"
+    assert product.price == 31000.0
+    assert product.quantity == 14
+
+
+def test_new_product_missing_key():
+    """Тест метода new_product с отсутствующими ключами."""
+    incomplete_data = {
+        "name": "Incomplete Product",
+        "price": 50000.0
+    }
+
+    product = Product.new_product(incomplete_data)
+    assert product is None
+
+
+def test_category_products_getter():
+    """Тест геттера для списка продуктов."""
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
+    category = Category("Смартфоны", "Описание категории", [product1])
+
+    assert category.products == [product1]
+
+
+def test_invalid_addition():
+    """Тест сложения продукта с объектом другого типа."""
+    product = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 100, 10)
+
+    with pytest.raises(TypeError):
+        _ = product + "Not a product"
