@@ -24,21 +24,15 @@ def test_price_getter(product):
     assert product.price == 180000.0
 
 
-def test_price_setter_positive_value(product):
-    """Тест сеттера для корректного обновления цены."""
-    product.price = 190000.0
-    assert product.price == 190000.0
-
-
-def test_price_setter_negative_value(product, capsys):
+def test_price_setter_negative_value(product):
     """Тест на попытку установить отрицательную цену."""
-    product.price = -5000.0
-    captured = capsys.readouterr()
-    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    with pytest.raises(ValueError) as exc_info:
+        product.price = -5000.0
+    assert "Цена должна быть положительным числом" in str(exc_info.value)
     assert product.price == 180000.0  # Цена не должна была измениться
 
 
-def test_price_reduction_with_confirmation(monkeypatch, product, capsys):
+def test_price_reduction_with_confirmation(monkeypatch, product):
     """Тест на успешное снижение цены с подтверждением."""
     monkeypatch.setattr('builtins.input', lambda _: "да")  # Автоматически подтверждаем
     product.price = 170000.0
@@ -54,11 +48,11 @@ def test_price_reduction_without_confirmation(monkeypatch, product, capsys):
     assert product.price == 180000.0  # Цена не должна была измениться
 
 
-def test_price_setter_zero_value(product, capsys):
+def test_price_setter_zero_value(product):
     """Тест на попытку установить нулевую цену."""
-    product.price = 0.0
-    captured = capsys.readouterr()
-    assert "Цена не должна быть нулевая или отрицательная" in captured.out
+    with pytest.raises(ValueError) as exc_info:
+        product.price = 0.0
+    assert "Цена должна быть положительным числом" in str(exc_info.value)
     assert product.price == 180000.0  # Цена не должна была измениться
 
 
@@ -69,24 +63,41 @@ def test_price_setter_higher_value(product):
 
 
 def test_new_product():
+    """Тест на создание нового продукта с помощью new_product."""
     product_data = {
         "name": "Test Product",
         "description": "Test Description",
         "price": 100.0,
         "quantity": 10
     }
-    product = Product.new_product(product_data)
-    assert product is not None
-    assert product.name == "Test Product"
-    assert product.description == "Test Description"
-    assert product.price == 100.0
-    assert product.quantity == 10
+    product_d = Product.new_product(product_data)
+    assert product_d is not None
+    assert product_d.name == "Test Product"
+    assert product_d.description == "Test Description"
+    assert product_d.price == 100.0
+    assert product_d.quantity == 10
 
 
 def test_new_product_missing_key():
+    """Тест на создание нового продукта с недостающим ключом."""
     incomplete_data = {
         "name": "Incomplete Product",
         "price": 50.0
     }
-    product = Product.new_product(incomplete_data)
-    assert product is None
+    product_incom = Product.new_product(incomplete_data)
+    assert product_incom is None
+
+
+def test_product_add_operator():
+    """Тест оператора сложения для расчета полной стоимости продуктов на складе."""
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 100.0, 10)
+    product2 = Product("Iphone 15", "512GB, Gray space", 200.0, 2)
+
+    # Ожидаем, что сложение двух продуктов даст полную стоимость: (100 * 10) + (200 * 2)
+    total_cost = product1 + product2
+    expected_cost = (100.0 * 10) + (200.0 * 2)  # 1000 + 400 = 1400
+    assert total_cost == expected_cost
+
+    # Проверка на ошибку при сложении с объектом другого типа
+    with pytest.raises(TypeError):
+        product1 + "Not a product"  # Ожидаем исключение TypeError
