@@ -11,27 +11,26 @@ class Category:
         self.description = description
         self.__products = products if products else []
         Category.category_count += 1
-        Category.product_count += len(self.__products)
+        # Считаем количество всех товаров в новой категории
+        Category.product_count += sum(product.quantity for product in self.__products)
 
     def add_product(self, new_product: Product):
         for existing_product in self.__products:
             if existing_product.name == new_product.name:
                 existing_product.quantity += new_product.quantity
+                # Обновляем цену только если она выше
                 if new_product.price > existing_product.price:
                     existing_product.price = new_product.price
                 return
 
+        # Добавляем новый продукт
         self.__products.append(new_product)
-        Category.product_count += 1
+        Category.product_count += new_product.quantity  # Учитываем только новые товары
 
     @property
-    def products(self):  # Переименованный геттер
-        return '\n'.join(
-            f"{product.name}, "
-            f"{product.price} руб. "
-            f"Остаток: {product.quantity} шт."
-            for product in self.__products
-        )
-
-    def get_products(self):
+    def products(self):
         return self.__products
+
+    def __str__(self):
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
