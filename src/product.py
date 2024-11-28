@@ -1,9 +1,54 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class LoggingMixin:
+    def __init__(self, *args, **kwargs):
+        print(f"Создан объект класса {self.__class__.__name__} с параметрами {args} {kwargs}")
+
+
+class BaseProduct(ABC, LoggingMixin):
+    """
+    Базовый абстрактный класс для всех продуктов.
+    Определяет общие свойства и методы, которые должны быть у всех продуктов.
+    """
+    @abstractmethod
     def __init__(self, name, description, price, quantity):
+        super().__init__(name, description, price, quantity)
         self.name = name
         self.description = description
-        self.__price = price  # Используем сеттер для валидации цены
+        self.price = price  # Валидация цены будет в дочернем классе
         self.quantity = quantity
+
+    @property
+    @abstractmethod
+    def price(self):
+        """Геттер для цены."""
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, new_price):
+        """Сеттер для цены."""
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        """Метод для строкового представления продукта."""
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        """Метод для программного представления продукта."""
+        pass
+
+
+class Product(BaseProduct):
+    """
+    Класс для базового продукта. Наследуется от BaseProduct и включает LoggingMixin.
+    """
+    def __init__(self, name, description, price, quantity):
+        super().__init__(name, description, price, quantity)
+        self.__price = price  # Используем сеттер для валидации
 
     @property
     def price(self):
@@ -37,8 +82,10 @@ class Product:
             return None
 
     def __str__(self):
-        # Строковое представление должно точно соответствовать тесту
         return f"{self.name}, Цена: {self.price} руб, Количество: {self.quantity} шт."
+
+    def __repr__(self):
+        return f"Product(name={self.name}, price={self.price}, quantity={self.quantity})"
 
     def __add__(self, other):
         """
@@ -46,18 +93,16 @@ class Product:
         """
         if not isinstance(other, Product):
             raise TypeError("Сложение возможно только между объектами класса Product.")
-
         if type(self) is not type(other):
             raise TypeError("Нельзя складывать продукты разных категорий.")
-
         total_cost = (self.price * self.quantity) + (other.price * other.quantity)
         return total_cost
 
-    def __repr__(self):
-        return f"Product(name={self.name}, price={self.__price}, quantity={self.quantity})"
-
 
 class Smartphone(Product):
+    """
+    Класс для смартфонов. Наследуется от Product.
+    """
     def __init__(self, name, description, price, quantity, efficiency, model, memory, color):
         super().__init__(name, description, price, quantity)
         self.efficiency = efficiency
@@ -76,6 +121,9 @@ class Smartphone(Product):
 
 
 class LawnGrass(Product):
+    """
+    Класс для газонной травы. Наследуется от Product.
+    """
     def __init__(self, name, description, price, quantity, country, germination_period, color):
         super().__init__(name, description, price, quantity)
         self.country = country
