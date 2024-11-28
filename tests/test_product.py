@@ -11,12 +11,47 @@ def product():
                    5)
 
 
+@pytest.fixture
+def smartphone():
+    """Фикстура для создания объекта Smartphone."""
+    return Smartphone(
+        name="Iphone 15",
+        description="512GB, Серый космос",
+        price=210000.0,
+        quantity=3,
+        efficiency="A17 Bionic",
+        model="Pro Max",
+        memory=512,
+        color="Серый космос"
+    )
+
+
+@pytest.fixture
+def lawn_grass():
+    """Фикстура для создания объекта LawnGrass."""
+    return LawnGrass(
+        name="Газонная трава 'Ландшафт'",
+        description="Устойчивая к вытаптыванию газонная трава",
+        price=1200.0,
+        quantity=20,
+        country="Нидерланды",
+        germination_period=14,
+        color="Зеленый"
+    )
+
+
 def test_initialization(product):
     """Тест корректной инициализации объекта Product."""
     assert product.name == "Samsung Galaxy S23 Ultra"
     assert product.description == "256GB, Серый цвет, 200MP камера"
     assert product.price == 180000.0
     assert product.quantity == 5
+
+
+def test_logging_mixin(capsys, product):
+    """Тест LoggingMixin: проверяет, что сообщение логирования выводится корректно."""
+    captured = capsys.readouterr()
+    assert "Создан объект класса Product с параметрами" in captured.out
 
 
 def test_price_getter(product):
@@ -103,33 +138,23 @@ def test_product_add_operator():
         product1 + "Not a product"  # Ожидаем исключение TypeError
 
 
-def test_product_add_different_types():
+def test_product_add_different_types(smartphone, lawn_grass):
     """Тест на сложение продуктов разных типов."""
-    smartphone = Smartphone(
-        name="Smartphone A",
-        description="256GB, Black",
-        price=150000.0,
-        quantity=5,
-        efficiency="Snapdragon 8 Gen 2",
-        model="Galaxy A",
-        memory=256,
-        color="Black"
-    )
-
-    lawn_grass = LawnGrass(
-        name="Газонная трава 'Ландшафт'",
-        description="Высокая устойчивость",
-        price=1200.0,
-        quantity=20,
-        country="Нидерланды",
-        germination_period=14,
-        color="Зеленый"
-    )
-
     with pytest.raises(TypeError):
         _ = smartphone + lawn_grass
 
 
-def test_string_representation(product):
-    """Тест строкового представления продукта."""
-    assert str(product) == "Samsung Galaxy S23 Ultra, Цена: 180000.0 руб, Количество: 5 шт."
+def test_smartphone_string_representation(smartphone):
+    """Тест строкового представления для смартфона."""
+    assert str(smartphone) == (
+        "Смартфон: Iphone 15, модель: Pro Max, цвет: Серый космос, память: 512 GB, "
+        "производительность: A17 Bionic, цена: 210000.0 руб., остаток: 3 шт."
+    )
+
+
+def test_lawn_grass_string_representation(lawn_grass):
+    """Тест строкового представления для газонной травы."""
+    assert str(lawn_grass) == (
+        "Трава газонная: Газонная трава 'Ландшафт', цвет: Зеленый, страна-производитель: Нидерланды, "
+        "срок прорастания: 14 дней, цена: 1200.0 руб., остаток: 20 шт."
+    )
