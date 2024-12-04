@@ -40,6 +40,24 @@ class Category:
     def products(self):
         return self.__products
 
+    def average_price(self):
+        """
+        Вычисляет средний ценник товаров в категории.
+        Возвращает 0, если товаров нет.
+        """
+        try:
+            # Суммируем стоимость всех товаров
+            total_value = sum(product.price * product.quantity for product in self.__products)
+            # Считаем общее количество товаров
+            total_quantity = sum(product.quantity for product in self.__products)
+            # Вычисляем среднюю цену
+            if total_quantity == 0:
+                raise ZeroDivisionError("Общее количество товаров равно нулю.")
+            return total_value / total_quantity
+        except ZeroDivisionError as e:
+            print(f"Ошибка: {e}. Возвращаем 0.")
+            return 0
+
     def __str__(self):
         total_quantity = sum(product.quantity for product in self.__products)
         return f"{self.name}, количество продуктов: {total_quantity} шт."

@@ -48,6 +48,13 @@ def test_initialization(product):
     assert product.quantity == 5
 
 
+def test_initialization_zero_quantity():
+    """Тест на инициализацию продукта с нулевым количеством."""
+    with pytest.raises(ValueError) as exc_info:
+        Product("Test Product", "Description", 100.0, 0)
+    assert "Товар с нулевым количеством не может быть добавлен" in str(exc_info.value)
+
+
 def test_logging_mixin(capsys, product):
     """Тест LoggingMixin: проверяет, что сообщение логирования выводится корректно."""
     captured = capsys.readouterr()
