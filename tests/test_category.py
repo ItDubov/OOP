@@ -132,3 +132,31 @@ def test_invalid_addition():
 
     with pytest.raises(TypeError):
         _ = product + "Not a product"
+
+
+def test_average_price_calculation():
+    """Тест расчета среднего ценника товаров в категории."""
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
+    product2 = Product("Iphone 15", "512GB, Gray space", 210000.0, 3)
+
+    category = Category("Смартфоны", "Описание категории", [product1, product2])
+
+    avg_price = category.average_price()
+    assert avg_price == (180000 * 5 + 210000 * 3) / (5 + 3)  # Средняя цена
+
+
+def test_average_price_empty_category():
+    """Тест расчета среднего ценника для пустой категории."""
+    category = Category("Пустая категория", "Без товаров")
+
+    avg_price = category.average_price()
+    assert avg_price == 0  # Средний ценник для пустой категории должен быть 0
+
+
+def test_average_price_single_product():
+    """Тест расчета среднего ценника для категории с одним продуктом."""
+    product1 = Product("Samsung Galaxy S23 Ultra", "256GB, Серый цвет", 180000.0, 5)
+    category = Category("Смартфоны", "Описание категории", [product1])
+
+    avg_price = category.average_price()
+    assert avg_price == 180000  # Средняя цена будет равна цене единственного продукта
